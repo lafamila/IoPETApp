@@ -1,6 +1,10 @@
 package com.example.lafamila.iopet_app.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,12 +16,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.lafamila.iopet_app.R;
+import com.example.lafamila.iopet_app.util.Util;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 
-public class CustomAdapter extends BaseAdapter {
+import static android.view.View.GONE;
+
+public class ChatItemAdapter extends BaseAdapter {
     public class Message{
         String msg;
+
         int type;
         boolean isImage;
         Message(String _msg, int _type, boolean _isImage)
@@ -29,7 +39,7 @@ public class CustomAdapter extends BaseAdapter {
     }
 
     private ArrayList<Message> m_List;
-    public CustomAdapter() {
+    public ChatItemAdapter() {
         m_List = new ArrayList<Message>();
     }
 
@@ -98,23 +108,36 @@ public class CustomAdapter extends BaseAdapter {
         }
 
         // Text 등록
-        if(!m_List.get(position).isImage)
-            text.setText(m_List.get(position).msg);
+        if(!m_List.get(position).isImage) {
+            text.setVisibility(View.VISIBLE);
+            image.setVisibility(GONE);
 
+            text.setText(m_List.get(position).msg);
+        }
             //이미지 세팅
-        else
-            text.setText(m_List.get(position).msg);
-
+        else {
+            text.setVisibility(GONE);
+            image.setVisibility(View.VISIBLE);
+//            File imgFile = new  File(m_List.get(position).msg);
+//            if(imgFile.exists()){
+//
+//                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+//                image.setImageBitmap(myBitmap);
+//
+//            }
+            Log.d("lafamilafamila", Util.LOCAL_URL+m_List.get(position).msg.substring(1));
+            new DownloadImageTask(image).execute(Util.LOCAL_URL+m_List.get(position).msg.substring(1));
+        }
         if( m_List.get(position).type == 0 ) {
             text.setBackgroundResource(R.drawable.inbox2);
             layout.setGravity(Gravity.LEFT);
-            viewRight.setVisibility(View.GONE);
-            viewLeft.setVisibility(View.GONE);
+            viewRight.setVisibility(GONE);
+            viewLeft.setVisibility(GONE);
         }else if(m_List.get(position).type == 1){
             text.setBackgroundResource(R.drawable.outbox2);
             layout.setGravity(Gravity.RIGHT);
-            viewRight.setVisibility(View.GONE);
-            viewLeft.setVisibility(View.GONE);
+            viewRight.setVisibility(GONE);
+            viewLeft.setVisibility(GONE);
         }else if(m_List.get(position).type == 2){
             text.setBackgroundResource(R.drawable.datebg);
             layout.setGravity(Gravity.CENTER);
@@ -152,5 +175,28 @@ public class CustomAdapter extends BaseAdapter {
         LinearLayout layout;
         View viewRight;
         View viewLeft;
+    }
+
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap bmp = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                bmp = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return bmp;
+        }
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+        }
     }
 }
