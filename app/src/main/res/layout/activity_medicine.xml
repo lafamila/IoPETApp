@@ -26,6 +26,11 @@
 
         </EditText>
 
+        <EditText
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:inputType="number"
+            android:hint="복약 일수"></EditText>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"

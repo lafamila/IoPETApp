@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.lafamila.iopet_app.R;
 import com.example.lafamila.iopet_app.util.Util;
@@ -19,17 +21,18 @@ import java.util.ArrayList;
 import static android.view.View.GONE;
 
 public class HomeItemAdapter extends BaseAdapter {
-
+    int cur = -1;
     public class Article{
         String imgSrc;
 
         String title;
         String content;
-
-        Article(String _imgSrc, String _title, String _content){
+        int src;
+        Article(String _imgSrc, String _title, String _content, int _src){
             imgSrc = _imgSrc;
             title = _title;
             content = _content;
+            src = _src;
         }
 
     }
@@ -40,8 +43,8 @@ public class HomeItemAdapter extends BaseAdapter {
     }
 
 
-    public void add(String imgSrc, String title, String content) {
-        m_List.add(new Article(imgSrc, title, content));
+    public void add(String imgSrc, String title, String content, int src) {
+        m_List.add(new Article(imgSrc, title, content, src));
     }
 
     @Override
@@ -63,10 +66,9 @@ public class HomeItemAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         final int pos = position;
         final Context context = parent.getContext();
+        final TextView title, text;
+        final ImageView image;
 
-        TextView title = null;
-        TextView text = null;
-        ImageView image = null;
 
         CustomHolder holder;
 
@@ -79,7 +81,6 @@ public class HomeItemAdapter extends BaseAdapter {
             title = (TextView) convertView.findViewById(R.id.tv_homeTitle);
             text = (TextView) convertView.findViewById(R.id.tv_homeContent);
             image = (ImageView) convertView.findViewById(R.id.iv_homeImage);
-
 
             // 홀더 생성 및 Tag로 등록
             holder = new CustomHolder();
@@ -107,15 +108,27 @@ public class HomeItemAdapter extends BaseAdapter {
         }
         title.setText(m_List.get(pos).title);
         text.setText(m_List.get(pos).content);
+        image.setImageResource(m_List.get(pos).src);
 
+        image.setOnClickListener(new View.OnClickListener() {
 
-//        convertView.setOnClickListener(new View.OnClickListener() {
-//
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(context, "리스트 클릭 : "+m_List.get(pos), Toast.LENGTH_SHORT).show();
-//            }
-//        });
+            @Override
+            public void onClick(View v) {
+                if(pos == cur){
+                    //이미지 정상처리
+                    cur = -1;
+                    title.setVisibility(View.INVISIBLE);
+                    text.setVisibility(View.INVISIBLE);
+
+                }
+                else{
+                    //이미지 블러처리
+                    cur = pos;
+                    title.setVisibility(View.VISIBLE);
+                    text.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
 
 
