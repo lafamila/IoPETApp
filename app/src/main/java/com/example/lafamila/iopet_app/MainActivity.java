@@ -33,6 +33,7 @@ import android.widget.Toast;
 import com.example.lafamila.iopet_app.fragments.ChatFragment;
 import com.example.lafamila.iopet_app.fragments.HomeFragment;
 import com.example.lafamila.iopet_app.fragments.MedicineFragment;
+import com.example.lafamila.iopet_app.fragments.ResultFragment;
 import com.example.lafamila.iopet_app.fragments.UnalysisFragment;
 import com.example.lafamila.iopet_app.util.Util;
 
@@ -192,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                 case 2:
                     return new HomeFragment();
                 case 3:
-                    return new UnalysisFragment();
+                    return new ResultFragment();
                 case 4:
                     return new UnalysisFragment();
                 default:

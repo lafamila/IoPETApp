@@ -12,7 +12,7 @@ import com.example.lafamila.iopet_app.util.Util;
 
 public class MedicineActivity extends AppCompatActivity {
     Button save;
-    EditText name;
+    EditText name, count;
     CheckBox check1, check2, check3;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +24,7 @@ public class MedicineActivity extends AppCompatActivity {
         check1 = (CheckBox)findViewById(R.id.check_1);
         check2 = (CheckBox)findViewById(R.id.check_2);
         check3 = (CheckBox)findViewById(R.id.check_3);
+        count = (EditText)findViewById(R.id.edit_count);
 
         save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -33,6 +34,7 @@ public class MedicineActivity extends AppCompatActivity {
                 intent.putExtra("morning", check1.isChecked());
                 intent.putExtra("lunch", check2.isChecked());
                 intent.putExtra("dinner", check3.isChecked());
+                intent.putExtra("count", Integer.valueOf(count.getText().toString()));
                 setResult(Util.ADD_MEDICINE, intent);
                 finish();
             }

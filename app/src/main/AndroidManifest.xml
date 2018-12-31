@@ -26,7 +26,8 @@
             </intent-filter>
 
         </activity>
-        <activity android:name=".MedicineActivity" />
+        <activity android:name=".MedicineActivity"
+            android:theme="@style/AppTheme.NoActionAndStatusBar"/>
         <activity android:name=".ChatActivity" />
         <activity android:name=".SplashActivity">
             <intent-filter>

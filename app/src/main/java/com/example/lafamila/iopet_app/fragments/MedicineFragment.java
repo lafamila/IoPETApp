@@ -8,9 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.lafamila.iopet_app.MedicineActivity;
 import com.example.lafamila.iopet_app.R;
+import com.example.lafamila.iopet_app.adapters.HomeItemAdapter;
+import com.example.lafamila.iopet_app.adapters.MedicineItemAdapter;
 import com.example.lafamila.iopet_app.util.Util;
 
 
@@ -20,7 +24,8 @@ import com.example.lafamila.iopet_app.util.Util;
 public class MedicineFragment extends Fragment {
 
     private static final String ARG_SECTION_NUMBER = "section_number";
-
+    MedicineItemAdapter m_Adapter;
+    ListView lv;
     public MedicineFragment() {
     }
 
@@ -38,7 +43,20 @@ public class MedicineFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_medicine, container, false);
         Button add = (Button)rootView.findViewById(R.id.btn_addMedicine);
-        Button eat = (Button)rootView.findViewById(R.id.btn_eatMedicine);
+        lv = (ListView)rootView.findViewById(R.id.lv_medicine);
+        lv.setHeaderDividersEnabled(false);
+        lv.setDividerHeight(0);
+        final View header = getLayoutInflater().inflate(R.layout.item_medicine, null, false) ;
+        ((TextView)header.findViewById(R.id.name)).setText("");
+        ((TextView)header.findViewById(R.id.morning)).setText("아침");
+        ((TextView)header.findViewById(R.id.lunch)).setText("점심");
+        ((TextView)header.findViewById(R.id.dinner)).setText("저녁");
+        lv.addHeaderView(header);
+
+        m_Adapter = new MedicineItemAdapter();
+        lv.setAdapter(m_Adapter);
+
+//        Button eat = (Button)rootView.findViewById(R.id.btn_eatMedicine);
 
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,7 +78,10 @@ public class MedicineFragment extends Fragment {
             boolean morning = data.getBooleanExtra("morning", false);
             boolean lunch = data.getBooleanExtra("lunch", false);
             boolean dinner = data.getBooleanExtra("dinner", false);
+            int type = data.getIntExtra("count", 0);
 
+            m_Adapter.add(name, type, morning, lunch, dinner);
+            lv.setAdapter(m_Adapter);
             //DB나 기타등등에 저장..
 
         }

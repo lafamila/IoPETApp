@@ -6,6 +6,7 @@ import android.graphics.Point;
 import android.hardware.Camera;
 import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.AutoFocusCallback;
 import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,6 +20,8 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.lafamila.iopet_app.R;
@@ -37,6 +40,7 @@ public class UnalysisFragment extends Fragment {
     Camera camera;
     SurfaceView surfaceView;
     SurfaceHolder surfaceHolder;
+    ImageButton shot;
     boolean previewing = false;
     private static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -56,7 +60,7 @@ public class UnalysisFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_unalysis, container, false);
-        Button shot = (Button) rootView.findViewById(R.id.btn_shot);
+        shot = (ImageButton) rootView.findViewById(R.id.btn_shot);
 
         getActivity().getWindow().setFormat(PixelFormat.UNKNOWN);
         surfaceView = (SurfaceView)rootView.findViewById(R.id.surfaceview);
@@ -135,10 +139,26 @@ public class UnalysisFragment extends Fragment {
             }
         });
 
+        RelativeLayout background = (RelativeLayout)rootView.findViewById(R.id.relative_surface);
+        background.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                shot.setEnabled(false);
+                camera.autoFocus(myAutoFocusCallback);
+            }
+        });
+
 //        TextView textView = (TextView) rootView.findViewById(R.id.section_label);
 //        textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
         return rootView;
     }
+
+    AutoFocusCallback myAutoFocusCallback = new AutoFocusCallback(){
+        @Override
+        public void onAutoFocus(boolean b, Camera camera) {
+            shot.setEnabled(true);
+        }
+    };
 
     ShutterCallback myShutterCallback = new ShutterCallback(){
         @Override

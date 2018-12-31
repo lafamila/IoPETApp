@@ -36,29 +36,29 @@
                 android:id="@+id/tabItem1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:icon="@drawable/first" />
+                android:icon="@drawable/datebg" />
 
             <android.support.design.widget.TabItem
                 android:id="@+id/tabItem2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:icon="@drawable/second"/>
+                android:icon="@drawable/datebg"/>
             <android.support.design.widget.TabItem
                 android:id="@+id/tabItem3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:icon="@drawable/center" />
+                android:icon="@drawable/datebg" />
             <android.support.design.widget.TabItem
                 android:id="@+id/tabItem4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:icon="@drawable/third" />
+                android:icon="@drawable/datebg" />
 
             <android.support.design.widget.TabItem
                 android:id="@+id/tabItem5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:icon="@drawable/fourth" />
+                android:icon="@drawable/datebg" />
 
         </android.support.design.widget.TabLayout>
     </android.support.design.widget.AppBarLayout>

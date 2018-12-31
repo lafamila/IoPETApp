@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
+    android:background="@android:color/white"
     tools:context=".MedicineActivity">
 
 
@@ -27,6 +28,7 @@
         </EditText>
 
         <EditText
+            android:id="@+id/edit_count"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:inputType="number"
