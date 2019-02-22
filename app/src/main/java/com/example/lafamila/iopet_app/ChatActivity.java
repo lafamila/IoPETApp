@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 import org.apache.http.HttpEntity;
@@ -55,7 +56,7 @@ public class ChatActivity extends AppCompatActivity {
     ChatItemAdapter m_Adapter;
     private Socket mSocket;
     EditText edit;
-    int room_id;
+    int room_id, chat_type;
     private Emitter.Listener onNewMessage = new Emitter.Listener() {
         JSONObject arg;
         String sender = "";
@@ -113,75 +114,80 @@ public class ChatActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         room_id = intent.getIntExtra("room_id", -1);
-
-
-        try{
-            mSocket = IO.socket(Util.LOCAL_URL);
-            JSONObject object = new JSONObject();
-            try{
-                object.put("room_id", room_id);
-                object.put("sender", "pet");
-            }catch (JSONException e){
-                e.printStackTrace();
-            }
-
-            mSocket.connect();
-            mSocket.emit("join", object);
-            mSocket.on("received", onNewMessage);
-            //m_Adapter.add("New User", 2);
-        }catch (URISyntaxException e){
-            e.printStackTrace();
+        chat_type = intent.getIntExtra("type", 0);
+        if(chat_type == 0){
+            (new CheckTask()).execute(""+room_id);
         }
 
-
-
-        (new ChatTask()).execute(""+room_id);
-
-        edit = (EditText)findViewById(R.id.editText1);
-        m_Adapter = new ChatItemAdapter();
-        m_ListView = (ListView) findViewById(R.id.listView1);
-
-        m_ListView.setAdapter(m_Adapter);
-
-
-
-        Button upload = (Button)findViewById(R.id.button2);
-        upload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, 1);
-                //http://programmerguru.com/android-tutorial/how-to-upload-image-to-php-server/
-            }
-        });
-        Button send = (Button)findViewById(R.id.button1);
-        send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String txt = edit.getText().toString();
-                edit.setText("");
-
-                m_Adapter.add(txt, 1, false);
-                //이미지를 업로드하는경우
-                //m_Adapter.add(업로드된 파일 경로, 1, true);
-                m_ListView.setAdapter(m_Adapter);
-                edit.requestFocus();
-                m_ListView.requestFocus();
+        else{
+            try{
+                mSocket = IO.socket(Util.LOCAL_URL);
                 JSONObject object = new JSONObject();
                 try{
-                    object.put("message", txt);
-                    object.put("type", "text");
                     object.put("room_id", room_id);
                     object.put("sender", "pet");
                 }catch (JSONException e){
                     e.printStackTrace();
                 }
-                mSocket.emit("message", object);
+
+                mSocket.connect();
+                mSocket.emit("join", object);
+                mSocket.on("received", onNewMessage);
+                //m_Adapter.add("New User", 2);
+            }catch (URISyntaxException e){
+                e.printStackTrace();
             }
-        });
 
 
+
+            (new ChatTask()).execute(""+room_id);
+
+            edit = (EditText)findViewById(R.id.editText1);
+            m_Adapter = new ChatItemAdapter();
+            m_ListView = (ListView) findViewById(R.id.listView1);
+
+            m_ListView.setAdapter(m_Adapter);
+
+
+
+            Button upload = (Button)findViewById(R.id.button2);
+            upload.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                    photoPickerIntent.setType("image/*");
+                    startActivityForResult(photoPickerIntent, 1);
+                    //http://programmerguru.com/android-tutorial/how-to-upload-image-to-php-server/
+                }
+            });
+            Button send = (Button)findViewById(R.id.button1);
+            send.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String txt = edit.getText().toString();
+                    edit.setText("");
+
+                    m_Adapter.add(txt, 1, false);
+                    //이미지를 업로드하는경우
+                    //m_Adapter.add(업로드된 파일 경로, 1, true);
+                    m_ListView.setAdapter(m_Adapter);
+                    edit.requestFocus();
+                    m_ListView.requestFocus();
+                    JSONObject object = new JSONObject();
+                    try{
+                        object.put("message", txt);
+                        object.put("type", "text");
+                        object.put("room_id", room_id);
+                        object.put("sender", "pet");
+                    }catch (JSONException e){
+                        e.printStackTrace();
+                    }
+                    mSocket.emit("message", object);
+                }
+            });
+
+
+        }
 
 
 
@@ -270,6 +276,145 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
+    private class CheckTask extends AsyncTask<String, Integer, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            return postData(params[0]);
+        }
+
+        protected void onPostExecute(String result) {
+            Log.d("status", result);
+            if(Integer.valueOf(result) > 5){
+                try{
+                    mSocket = IO.socket(Util.LOCAL_URL);
+                    JSONObject object = new JSONObject();
+                    try{
+                        object.put("room_id", room_id);
+                        object.put("sender", "pet");
+                    }catch (JSONException e){
+                        e.printStackTrace();
+                    }
+
+                    mSocket.connect();
+                    mSocket.emit("join", object);
+//                    mSocket.on("received", onNewMessage);
+                    //m_Adapter.add("New User", 2);
+                }catch (URISyntaxException e){
+                    e.printStackTrace();
+                }
+                Toast.makeText(getBaseContext(), "채팅 가능 회수 5회를 초과하셨습니다.", Toast.LENGTH_LONG).show();
+                finish();
+            }
+            else{
+                try{
+                    mSocket = IO.socket(Util.LOCAL_URL);
+                    JSONObject object = new JSONObject();
+                    try{
+                        object.put("room_id", room_id);
+                        object.put("sender", "pet");
+                    }catch (JSONException e){
+                        e.printStackTrace();
+                    }
+
+                    mSocket.connect();
+                    mSocket.emit("join", object);
+                    mSocket.on("received", onNewMessage);
+                    //m_Adapter.add("New User", 2);
+                }catch (URISyntaxException e){
+                    e.printStackTrace();
+                }
+
+
+
+                (new ChatTask()).execute(""+room_id);
+
+                edit = (EditText)findViewById(R.id.editText1);
+                m_Adapter = new ChatItemAdapter();
+                m_ListView = (ListView) findViewById(R.id.listView1);
+
+                m_ListView.setAdapter(m_Adapter);
+
+
+
+                Button upload = (Button)findViewById(R.id.button2);
+                upload.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                        photoPickerIntent.setType("image/*");
+                        startActivityForResult(photoPickerIntent, 1);
+                        //http://programmerguru.com/android-tutorial/how-to-upload-image-to-php-server/
+                    }
+                });
+                Button send = (Button)findViewById(R.id.button1);
+                send.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String txt = edit.getText().toString();
+                        edit.setText("");
+
+                        m_Adapter.add(txt, 1, false);
+                        //이미지를 업로드하는경우
+                        //m_Adapter.add(업로드된 파일 경로, 1, true);
+                        m_ListView.setAdapter(m_Adapter);
+                        edit.requestFocus();
+                        m_ListView.requestFocus();
+                        JSONObject object = new JSONObject();
+                        try{
+                            object.put("message", txt);
+                            object.put("type", "text");
+                            object.put("room_id", room_id);
+                            object.put("sender", "pet");
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                        }
+                        mSocket.emit("message", object);
+                    }
+                });
+
+
+            }
+        }
+
+
+        public String postData(String valueIWantToSend) {
+            // Create a new HttpClient and Post Header
+            Integer result = -1;
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpPost httppost = new HttpPost(
+                    Util.LOCAL_URL+"/petChatApp");
+            //            "http://13.125.255.139:5000/chatList");
+
+            try {
+                // Add your data
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                nameValuePairs.add(new BasicNameValuePair("pet_id",
+                        valueIWantToSend));
+                httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+                // Execute HTTP Post Request
+                HttpResponse response = httpclient.execute(httppost);
+                result = response.getStatusLine().getStatusCode();
+
+                if(result == 200){
+                    HttpEntity entity = response.getEntity();
+                    String responseString = EntityUtils.toString(entity, "UTF-8");
+                    return responseString;
+                }
+                else{
+                    return "6";
+
+                }
+
+            } catch (ClientProtocolException e) {
+                // TODO Auto-generated catch block
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+            }
+            return "6";
+        }
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

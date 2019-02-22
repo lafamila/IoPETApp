@@ -80,7 +80,7 @@
                     app:indeterminateSweepAnimationDuration="600"
                     app:indeterminateMinimumAngle="45"
                     app:maximum="100"
-                    app:progress="25"
+                    app:progress="0"
                     app:progressAnimationDuration="100"
                     app:startAngle="270"/>
 

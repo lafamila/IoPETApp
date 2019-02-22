@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.lafamila.iopet_app.ChatActivity;
 import com.example.lafamila.iopet_app.R;
@@ -29,19 +30,51 @@ public class ChatFragment extends Fragment {
 //        return fragment;
 //    }
 
+    int roomID;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        roomID = getArguments().getInt("room_id");
+
         View rootView = inflater.inflate(R.layout.fragment_chat, container, false);
+
+        Button chat = (Button) rootView.findViewById(R.id.btn_chat);
+        chat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(roomID != 0){
+                    Intent intent = new Intent(getContext(), ChatActivity.class);
+                    intent.putExtra("room_id", roomID);
+                    intent.putExtra("type", 0);
+                    startActivity(intent);
+                }
+                else{
+                    Toast.makeText(getContext(), "고객 전용입니다.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
         Button emergency = (Button) rootView.findViewById(R.id.btn_emergency);
         emergency.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getContext(), ChatActivity.class);
-                intent.putExtra("room_id", Util.TEMP_ROOM_ID);
-                startActivity(intent);
+                if(roomID != 0){
+                    Intent intent = new Intent(getContext(), ChatActivity.class);
+                    intent.putExtra("room_id", roomID);
+                    intent.putExtra("type", 1);
+                    startActivity(intent);
+                }
+                else{
+                    Toast.makeText(getContext(), "고객 전용입니다.", Toast.LENGTH_LONG).show();
+                }
             }
         });
         return rootView;
     }
+
+
+
+
+
 }

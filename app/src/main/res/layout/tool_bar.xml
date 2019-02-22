@@ -9,6 +9,7 @@
     app:popupTheme="@style/AppTheme.PopupOverlay">
 
     <ImageView
+        android:id="@+id/toolbar_menu"
         android:src="@drawable/menu"
         android:layout_width="30dp"
         android:layout_height="30dp"

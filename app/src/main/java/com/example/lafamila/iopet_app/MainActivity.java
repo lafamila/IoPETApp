@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
@@ -19,6 +20,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +39,21 @@ import com.example.lafamila.iopet_app.fragments.MedicineFragment;
 import com.example.lafamila.iopet_app.fragments.ResultFragment;
 import com.example.lafamila.iopet_app.fragments.UnalysisFragment;
 import com.example.lafamila.iopet_app.util.Util;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.example.lafamila.iopet_app.util.Util.LOCAL_URL;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -86,14 +104,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /***
-     *  Chatting Setup
-     ***/
-
-
+    int pet_id;
     int room_id;
-
-
+    ImageView menu;
     /***
      *  Tab Layout Setup
      ***/
@@ -107,6 +120,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        Toolbar toolbar = findViewById(R.id.main_toolbar);
+        menu = toolbar.findViewById(R.id.toolbar_menu);
         if(!hasPermission()){
             requestNecessaryPermissions();
         }
@@ -134,21 +150,12 @@ public class MainActivity extends AppCompatActivity {
         Util.WIDTH = w;
 
         Intent intent = getIntent();
-        room_id = intent.getIntExtra("room_id", -1);
+        pet_id = intent.getIntExtra("petID", 0);
+        Log.d("lafamilamainA", pet_id+"");
+
+        (new LoginTask()).execute();
 
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-        mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-        mViewPager.setCurrentItem(2);
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-
-        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
 
     }
@@ -161,11 +168,12 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-
 
 //        if (id == R.id.action_settings) {
 //            return true;
@@ -185,19 +193,34 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
+            Bundle bundle = new Bundle();
+            bundle.putInt("petID", pet_id);
+            bundle.putInt("room_id", room_id);
             switch(position){
                 case 0:
-                    return new ChatFragment();
+                    ChatFragment chatFragment = new ChatFragment();
+                    chatFragment.setArguments(bundle);
+                    return chatFragment;
                 case 1:
-                    return new MedicineFragment();
+                    MedicineFragment medicineFragment = new MedicineFragment();
+                    medicineFragment.setArguments(bundle);
+                    return medicineFragment;
                 case 2:
-                    return new HomeFragment();
+                    HomeFragment homeFragment = new HomeFragment();
+                    homeFragment.setArguments(bundle);
+                    return homeFragment;
                 case 3:
-                    return new ResultFragment();
+                    ResultFragment resultFragment = new ResultFragment();
+                    resultFragment.setArguments(bundle);
+                    return resultFragment;
                 case 4:
-                    return new UnalysisFragment();
+                    UnalysisFragment unalysisFragment = new UnalysisFragment();
+                    unalysisFragment.setArguments(bundle);
+                    return unalysisFragment;
                 default:
-                    return new HomeFragment();
+                    HomeFragment defaultFragment = new HomeFragment();
+                    defaultFragment.setArguments(bundle);
+                    return defaultFragment;
 
             }
         }
@@ -208,4 +231,104 @@ public class MainActivity extends AppCompatActivity {
             return 5;
         }
     }
+
+
+    class LoginTask extends AsyncTask<String, String, String> {
+        HashMap<String, String> post;
+
+
+        @Override
+        protected void onPreExecute() {
+
+            post = new HashMap<>();
+            post.put("pet_id", pet_id+"");
+
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+
+            room_id = Integer.valueOf(s);
+            toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+
+            if(room_id == 0){
+                menu.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(getBaseContext(), "asdf", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+            mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+
+            mViewPager = (ViewPager) findViewById(R.id.container);
+            mViewPager.setAdapter(mSectionsPagerAdapter);
+            mViewPager.setCurrentItem(2);
+            TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+
+            mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+            tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+
+        }
+
+        @Override
+        protected String doInBackground(String... x) {
+            String data = "";
+            try{
+
+                URL url = new URL(LOCAL_URL+"/petLogin");
+
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(1500000);
+                conn.setConnectTimeout(1500000);
+                conn.setRequestMethod("POST");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+
+
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, "UTF-8"));
+                writer.write(getPostDataString(post));
+
+                writer.flush();
+                writer.close();
+                os.close();
+
+
+
+                InputStream is = conn.getInputStream();
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(is, "UTF-8"));
+                data = reader.readLine();
+                reader.close();
+                is.close();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return data;
+        }
+    }
+
+
+
+    private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (first)
+                first = false;
+            else
+                result.append("&");
+
+            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+        }
+
+        return result.toString();
+    }
+
 }

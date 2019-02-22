@@ -201,7 +201,10 @@ public class LoginActivity extends Activity {
                 Toast.makeText(getBaseContext(), "Incorrect ID or Password", Toast.LENGTH_LONG).show();
             }
             else{
+                int petID = Integer.valueOf(s);
                 Intent i = new Intent(getBaseContext(), MainActivity.class);
+                Log.d("lafamilalogin", petID+"");
+                i.putExtra("petID", petID);
                 startActivity(i);
             }
         }
