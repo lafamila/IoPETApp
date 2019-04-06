@@ -1,4 +1,4 @@
-package com.example.lafamila.iopet_app;
+package com.iopet.lafamila.iopet_app;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -9,43 +9,24 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.Toast;
 
-import com.example.lafamila.iopet_app.adapters.ChatItemAdapter;
-import com.example.lafamila.iopet_app.util.Util;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.example.lafamila.iopet_app.R;
+import com.iopet.lafamila.iopet_app.util.Util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static com.example.lafamila.iopet_app.util.Util.LOCAL_URL;
+import static com.iopet.lafamila.iopet_app.util.Util.LOCAL_URL;
 
 public class MedicineActivity extends AppCompatActivity {
     Button save;

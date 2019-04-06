@@ -1,26 +1,15 @@
-package com.example.lafamila.iopet_app.adapters;
+package com.iopet.lafamila.iopet_app.adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.lafamila.iopet_app.R;
-import com.example.lafamila.iopet_app.util.Util;
 
-import java.io.InputStream;
 import java.util.ArrayList;
-
-import static android.view.View.GONE;
 
 public class MedicineItemAdapter extends BaseAdapter{
 

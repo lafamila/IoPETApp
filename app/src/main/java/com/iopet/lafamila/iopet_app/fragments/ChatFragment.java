@@ -1,4 +1,4 @@
-package com.example.lafamila.iopet_app.fragments;
+package com.iopet.lafamila.iopet_app.fragments;
 
 
 import android.content.Intent;
@@ -10,9 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.lafamila.iopet_app.ChatActivity;
+import com.iopet.lafamila.iopet_app.ChatActivity;
 import com.example.lafamila.iopet_app.R;
-import com.example.lafamila.iopet_app.util.Util;
 
 
 public class ChatFragment extends Fragment {

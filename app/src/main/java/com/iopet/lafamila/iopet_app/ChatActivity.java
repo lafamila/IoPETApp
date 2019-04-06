@@ -1,7 +1,8 @@
-package com.example.lafamila.iopet_app;
+package com.iopet.lafamila.iopet_app;
 
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -45,8 +46,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-import com.example.lafamila.iopet_app.adapters.ChatItemAdapter;
-import com.example.lafamila.iopet_app.util.Util;
+import com.example.lafamila.iopet_app.R;
+import com.iopet.lafamila.iopet_app.adapters.ChatItemAdapter;
+import com.iopet.lafamila.iopet_app.util.Util;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.github.nkzawa.emitter.Emitter;
@@ -136,6 +138,7 @@ public class ChatActivity extends AppCompatActivity {
                 //m_Adapter.add("New User", 2);
             }catch (URISyntaxException e){
                 e.printStackTrace();
+                Log.d("socketError", e.getMessage());
             }
 
 
@@ -210,6 +213,18 @@ public class ChatActivity extends AppCompatActivity {
 
 
     private class ChatTask extends AsyncTask<String, Integer, JSONArray> {
+        ProgressDialog asyncDialog = new ProgressDialog(ChatActivity.this);
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+
+            asyncDialog.setMessage("채팅 내역 로딩중...");
+
+            asyncDialog.show();
+
+        }
 
         @Override
         protected JSONArray doInBackground(String... params) {
@@ -220,6 +235,7 @@ public class ChatActivity extends AppCompatActivity {
 
         protected void onPostExecute(JSONArray result) {
             Log.d("status", result.toString());
+            asyncDialog.dismiss();
             for (int i = 0; i < result.length(); i++) { // Walk through the Array.
                 try{
                     JSONObject obj = result.getJSONObject(i);
@@ -277,6 +293,18 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private class CheckTask extends AsyncTask<String, Integer, String> {
+        ProgressDialog asyncDialog = new ProgressDialog(ChatActivity.this);
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+
+            asyncDialog.setMessage("채팅 로그인 중...");
+
+            asyncDialog.show();
+        }
 
         @Override
         protected String doInBackground(String... params) {
@@ -285,6 +313,7 @@ public class ChatActivity extends AppCompatActivity {
 
         protected void onPostExecute(String result) {
             Log.d("status", result);
+            asyncDialog.dismiss();
             if(Integer.valueOf(result) > 5){
                 try{
                     mSocket = IO.socket(Util.LOCAL_URL);
@@ -451,6 +480,9 @@ public class ChatActivity extends AppCompatActivity {
 
     private class UploadFileAsync extends AsyncTask<String, Void, String> {
         String sourceFileUri;
+        ProgressDialog asyncDialog = new ProgressDialog(ChatActivity.this);
+
+
         @Override
         protected String doInBackground(String... params) {
 
@@ -526,7 +558,9 @@ public class ChatActivity extends AppCompatActivity {
                         fileInputStream.close();
                         dos.flush();
                         dos.close();
-                        return readStream(conn.getInputStream());
+                        InputStream get = conn.getInputStream();
+                        conn.disconnect();
+                        return readStream(get);
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -543,7 +577,7 @@ public class ChatActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             Log.d("lafamilafamila", result);
-
+            asyncDialog.dismiss();
             m_Adapter.add(result, 1, true);
             //이미지를 업로드하는경우
             //m_Adapter.add(업로드된 파일 경로, 1, true);
@@ -565,6 +599,11 @@ public class ChatActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
+            asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+
+            asyncDialog.setMessage("업로드 중...");
+
+            asyncDialog.show();
         }
 
         @Override

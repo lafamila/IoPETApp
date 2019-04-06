@@ -1,4 +1,4 @@
-package com.example.lafamila.iopet_app.adapters;
+package com.iopet.lafamila.iopet_app.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -13,12 +13,10 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.lafamila.iopet_app.R;
-import com.example.lafamila.iopet_app.util.Util;
+import com.iopet.lafamila.iopet_app.util.Util;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 
@@ -125,7 +123,6 @@ public class ChatItemAdapter extends BaseAdapter {
 //                image.setImageBitmap(myBitmap);
 //
 //            }
-            Log.d("lafamilafamila", Util.LOCAL_URL+m_List.get(position).msg.substring(1));
             new DownloadImageTask(image).execute(Util.LOCAL_URL+m_List.get(position).msg.substring(1));
         }
         if( m_List.get(position).type == 0 ) {

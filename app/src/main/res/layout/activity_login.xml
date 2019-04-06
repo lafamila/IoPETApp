@@ -11,7 +11,7 @@
     android:paddingRight="75dp"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    tools:context=".LoginActivity">
+    tools:context="com.iopet.lafamila.iopet_app.LoginActivity">
 
     <ImageView
         android:id="@+id/img_login"
@@ -40,6 +40,7 @@
         android:layout_marginBottom="10dp"
         android:background="@drawable/rounded_edit"
         android:hint="Password"
+        android:inputType="textPassword"
         android:paddingLeft="15dp"
         android:textSize="12dp" />
 

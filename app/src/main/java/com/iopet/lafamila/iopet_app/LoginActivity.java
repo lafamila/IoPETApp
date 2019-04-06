@@ -1,16 +1,24 @@
-package com.example.lafamila.iopet_app;
+package com.iopet.lafamila.iopet_app;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.example.lafamila.iopet_app.R;
+import com.iopet.lafamila.iopet_app.util.Util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -25,8 +33,6 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.example.lafamila.iopet_app.util.Util.LOCAL_URL;
-
 public class LoginActivity extends Activity {
 
     LinearLayout join_section, login, join;
@@ -35,6 +41,56 @@ public class LoginActivity extends Activity {
     float d;
     int MARGIN_DEFAULT;
     int MARGIN_JOIN;
+    private final long FINISH_INTERVAL_TIME = 2000;
+    private long backPressedTime = 0;
+    /***
+     *  Camera Setup
+     ***/
+    String[] permissions = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
+
+    private boolean hasPermission(){
+        int res = 0;
+        for(String perms : permissions){
+            res = checkCallingOrSelfPermission(perms);
+            if(!(res == PackageManager.PERMISSION_GRANTED)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void requestNecessaryPermissions(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            requestPermissions(permissions, 1111);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        boolean isAllowed = true;
+        switch(requestCode){
+            case 1111:
+                for(int res : grantResults){
+                    isAllowed = isAllowed && (res == PackageManager.PERMISSION_GRANTED);
+                }
+                break;
+            default:
+                break;
+        }
+        if(!isAllowed){
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                if(shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)){
+                    Toast.makeText(getBaseContext(), "Camera Permission denided", Toast.LENGTH_SHORT).show();
+                }
+                else if(shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                    Toast.makeText(getBaseContext(), "External Storage Permission denided", Toast.LENGTH_SHORT).show();
+                }
+                else if(shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)){
+                    Toast.makeText(getBaseContext(), "External Storage Permission denided", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
 
 
     EditText ed_id, ed_pw, ed_confirm, ed_pet, ed_name, ed_phone, ed_hostpital;
@@ -42,6 +98,11 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        if(!hasPermission()){
+            requestNecessaryPermissions();
+        }
+
 
         d = getBaseContext().getResources().getDisplayMetrics().density;
         MARGIN_DEFAULT = (int)(20 * d);
@@ -73,12 +134,20 @@ public class LoginActivity extends Activity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                LinearLayout self = (LinearLayout) view;
+                self.setEnabled(false);
+
                 (new LoginTask()).execute();
             }
         });
 
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
 
+        login.setEnabled(true);
+    }
     public void flip(){
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -144,7 +213,7 @@ public class LoginActivity extends Activity {
             String data = "";
             try{
 
-                URL url = new URL(LOCAL_URL+"/petJoin");
+                URL url = new URL(Util.LOCAL_URL+"/petJoin");
 
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setReadTimeout(1500000);
@@ -179,11 +248,38 @@ public class LoginActivity extends Activity {
     }
 
 
+    @Override
+    public void onBackPressed() {
 
+        long tempTime = System.currentTimeMillis();
+        long intervalTime = tempTime - backPressedTime;
+
+        if (0 <= intervalTime && FINISH_INTERVAL_TIME >= intervalTime) {
+            super.onBackPressed();
+        }
+        else {
+            if(!isJoin){
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        (int)(70 * d)
+                );
+                login.setVisibility(View.VISIBLE);
+                join_section.setVisibility(View.GONE);
+                params.setMargins(0, 0, 0, MARGIN_DEFAULT);
+                logo.setLayoutParams(params);
+                isJoin = !isJoin;
+            }
+            else {
+                backPressedTime = tempTime;
+                Toast.makeText(this, "한번 더 취소를 누르시면 종료됩니다.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     class LoginTask extends AsyncTask<String, String, String> {
         HashMap<String, String> post;
 
+        ProgressDialog asyncDialog = new ProgressDialog(LoginActivity.this);
 
         @Override
         protected void onPreExecute() {
@@ -191,14 +287,24 @@ public class LoginActivity extends Activity {
             post = new HashMap<>();
             post.put("id", ed_id.getText().toString());
             post.put("pw", ed_pw.getText().toString());
+            asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+
+            asyncDialog.setMessage("로그인 중...");
+
+            asyncDialog.show();
+
 
         }
 
         @Override
         protected void onPostExecute(String s) {
-
+            asyncDialog.dismiss();
+            login.setEnabled(true);
             if(s.equals("error")){
                 Toast.makeText(getBaseContext(), "Incorrect ID or Password", Toast.LENGTH_LONG).show();
+            }
+            else if(s.equals("")){
+                Toast.makeText(getBaseContext(), "Internet Connection Error", Toast.LENGTH_LONG).show();
             }
             else{
                 int petID = Integer.valueOf(s);
@@ -214,7 +320,7 @@ public class LoginActivity extends Activity {
             String data = "";
             try{
 
-                URL url = new URL(LOCAL_URL+"/petLoginApp");
+                URL url = new URL(Util.LOCAL_URL+"/petLoginApp");
 
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setReadTimeout(1500000);

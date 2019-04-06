@@ -1,21 +1,23 @@
-package com.example.lafamila.iopet_app.adapters;
+package com.iopet.lafamila.iopet_app.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.lafamila.iopet_app.R;
-import com.example.lafamila.iopet_app.util.Util;
+import com.iopet.lafamila.iopet_app.util.Util;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import static android.view.View.GONE;
@@ -68,7 +70,7 @@ public class HomeItemAdapter extends BaseAdapter {
         final Context context = parent.getContext();
         final TextView title, text;
         final ImageView image;
-
+//        final LinearLayout blur;
 
         CustomHolder holder;
 
@@ -81,12 +83,13 @@ public class HomeItemAdapter extends BaseAdapter {
             title = (TextView) convertView.findViewById(R.id.tv_homeTitle);
             text = (TextView) convertView.findViewById(R.id.tv_homeContent);
             image = (ImageView) convertView.findViewById(R.id.iv_homeImage);
-
+//            blur = (LinearLayout) convertView.findViewById(R.id.ll_homeBlur);
             // 홀더 생성 및 Tag로 등록
             holder = new CustomHolder();
             holder.m_ImageView = image;
             holder.tv_title = title;
             holder.tv_content = text;
+//            holder.ll = blur;
             convertView.setTag(holder);
         }
         else {
@@ -94,6 +97,7 @@ public class HomeItemAdapter extends BaseAdapter {
             text = holder.tv_content;
             image = holder.m_ImageView;
             title = holder.tv_title;
+//            blur = holder.ll;
         }
 
         // Text 등록
@@ -104,11 +108,11 @@ public class HomeItemAdapter extends BaseAdapter {
         //이미지 세팅
         else {
             image.setVisibility(View.VISIBLE);
-//            new ChatItemAdapter.DownloadImageTask(image).execute(Util.LOCAL_URL+m_List.get(position).msg.substring(1));
+            new DownloadImageTask(image).execute(Util.LOCAL_URL+m_List.get(position).imgSrc.substring(1));
         }
         title.setText(m_List.get(pos).title);
         text.setText(m_List.get(pos).content);
-        image.setImageResource(m_List.get(pos).src);
+//        image.setImageResource(m_List.get(pos).src);
 
         image.setOnClickListener(new View.OnClickListener() {
 
@@ -119,13 +123,17 @@ public class HomeItemAdapter extends BaseAdapter {
                     cur = -1;
                     title.setVisibility(View.INVISIBLE);
                     text.setVisibility(View.INVISIBLE);
+                    image.setColorFilter(Color.argb(0, 255, 255, 255));
+//                    blur.setVisibility(View.INVISIBLE);
 
                 }
                 else{
                     //이미지 블러처리
                     cur = pos;
+//                    blur.setVisibility(View.VISIBLE);
                     title.setVisibility(View.VISIBLE);
                     text.setVisibility(View.VISIBLE);
+                    image.setColorFilter(Color.argb(75, 255, 255, 255));
                 }
             }
         });
@@ -147,6 +155,28 @@ public class HomeItemAdapter extends BaseAdapter {
         ImageView m_ImageView;
         TextView tv_title;
         TextView tv_content;
+//        LinearLayout ll;
     }
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
 
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap bmp = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                bmp = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return bmp;
+        }
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+        }
+    }
 }

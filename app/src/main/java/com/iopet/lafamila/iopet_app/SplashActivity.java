@@ -1,9 +1,11 @@
-package com.example.lafamila.iopet_app;
+package com.iopet.lafamila.iopet_app;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+
+import com.example.lafamila.iopet_app.R;
 
 public class SplashActivity extends Activity {
 

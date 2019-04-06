@@ -1,4 +1,4 @@
-package com.example.lafamila.iopet_app;
+package com.iopet.lafamila.iopet_app;
 
 import android.Manifest;
 import android.content.Intent;
@@ -9,9 +9,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -22,23 +19,20 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.lafamila.iopet_app.fragments.ChatFragment;
-import com.example.lafamila.iopet_app.fragments.HomeFragment;
-import com.example.lafamila.iopet_app.fragments.MedicineFragment;
-import com.example.lafamila.iopet_app.fragments.ResultFragment;
-import com.example.lafamila.iopet_app.fragments.UnalysisFragment;
-import com.example.lafamila.iopet_app.util.Util;
+import com.example.lafamila.iopet_app.R;
+import com.iopet.lafamila.iopet_app.fragments.ChatFragment;
+import com.iopet.lafamila.iopet_app.fragments.HomeFragment;
+import com.iopet.lafamila.iopet_app.fragments.MedicineFragment;
+import com.iopet.lafamila.iopet_app.fragments.ResultFragment;
+import com.iopet.lafamila.iopet_app.fragments.UnalysisFragment;
+import com.iopet.lafamila.iopet_app.util.Util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -53,56 +47,9 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.example.lafamila.iopet_app.util.Util.LOCAL_URL;
-
 public class MainActivity extends AppCompatActivity {
 
 
-    /***
-     *  Camera Setup
-     ***/
-    String[] permissions = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
-    private boolean hasPermission(){
-        int res = 0;
-        for(String perms : permissions){
-            res = checkCallingOrSelfPermission(perms);
-            if(!(res == PackageManager.PERMISSION_GRANTED)){
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void requestNecessaryPermissions(){
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            requestPermissions(permissions, 1111);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        boolean isAllowed = true;
-        switch(requestCode){
-            case 1111:
-                for(int res : grantResults){
-                    isAllowed = isAllowed && (res == PackageManager.PERMISSION_GRANTED);
-                }
-                break;
-            default:
-                break;
-        }
-        if(!isAllowed){
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-                if(shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)){
-                    Toast.makeText(getBaseContext(), "Camera Permission denided", Toast.LENGTH_SHORT).show();
-                }
-                else if(shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-                    Toast.makeText(getBaseContext(), "External Storage Permission denided", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-    }
 
     int pet_id;
     int room_id;
@@ -123,9 +70,6 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.main_toolbar);
         menu = toolbar.findViewById(R.id.toolbar_menu);
-        if(!hasPermission()){
-            requestNecessaryPermissions();
-        }
 
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -256,7 +200,8 @@ public class MainActivity extends AppCompatActivity {
                 menu.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Toast.makeText(getBaseContext(), "asdf", Toast.LENGTH_LONG).show();
+                        Intent i = new Intent(getBaseContext(), UploadActivity.class);
+                        startActivity(i);
                     }
                 });
             }
@@ -265,11 +210,11 @@ public class MainActivity extends AppCompatActivity {
 
             mViewPager = (ViewPager) findViewById(R.id.container);
             mViewPager.setAdapter(mSectionsPagerAdapter);
-            mViewPager.setCurrentItem(2);
             TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
             mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
             tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+            mViewPager.setCurrentItem(2);
 
         }
 
@@ -278,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
             String data = "";
             try{
 
-                URL url = new URL(LOCAL_URL+"/petLogin");
+                URL url = new URL(Util.LOCAL_URL+"/petLogin");
 
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setReadTimeout(1500000);

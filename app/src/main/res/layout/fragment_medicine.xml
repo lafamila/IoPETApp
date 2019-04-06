@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
-    tools:context=".fragments.ChatFragment">
+    tools:context="com.iopet.lafamila.iopet_app.fragments.ChatFragment">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -59,6 +59,7 @@
                 android:layout_width="210dp"
                 android:layout_height="210dp">
                 <ImageView
+                    android:id="@+id/pill"
                     android:layout_centerInParent="true"
                     android:layout_width="150dp"
                     android:layout_height="150dp"
@@ -89,7 +90,7 @@
                 android:id="@+id/tv_medicineName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="25%"/>
+                android:text="0%"/>
         </LinearLayout>
 
     </LinearLayout>

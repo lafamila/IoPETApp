@@ -1,4 +1,4 @@
-package com.example.lafamila.iopet_app.fragments;
+package com.iopet.lafamila.iopet_app.fragments;
 
 
 import android.content.ContentValues;
@@ -21,16 +21,12 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.lafamila.iopet_app.R;
-import com.example.lafamila.iopet_app.util.Util;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.iopet.lafamila.iopet_app.util.Util;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -41,8 +37,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -68,10 +68,11 @@ public class UnalysisFragment extends Fragment {
 //        fragment.setArguments(args);
 //        return fragment;
 //    }
-
+    int pet_id;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        pet_id = getArguments().getInt("petID");
         View rootView = inflater.inflate(R.layout.fragment_unalysis, container, false);
         shot = (ImageButton) rootView.findViewById(R.id.btn_shot);
 
@@ -199,7 +200,9 @@ public class UnalysisFragment extends Fragment {
 
                 imageFileOS.flush();
                 imageFileOS.close();
-                Toast.makeText(getContext(), "Image saved : " + uriTarget.toString(), Toast.LENGTH_LONG).show();
+//                Toast.makeText(getContext(), "Image saved : " + uriTarget.toString(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Image saved : " + getRealPathFromURI(uriTarget), Toast.LENGTH_LONG).show();
+
                 (new UploadFileAsync()).execute(getRealPathFromURI(uriTarget));
                 camera.stopPreview();
                 camera.release();
@@ -237,7 +240,7 @@ public class UnalysisFragment extends Fragment {
                 if (sourceFile.isFile()) {
 
                     try {
-                        String upLoadServerUri = Util.LOCAL_URL+"/petType";
+                        String upLoadServerUri = Util.LOCAL_URL+"/petType?pet="+pet_id;
 
                         FileInputStream fileInputStream = new FileInputStream(
                                 sourceFile);
@@ -253,15 +256,17 @@ public class UnalysisFragment extends Fragment {
                                 "multipart/form-data");
                         conn.setRequestProperty("Content-Type",
                                 "multipart/form-data;boundary=" + boundary);
-                        conn.setRequestProperty("lafamila", sourceFileUri);
+//                        conn.setRequestProperty("lafamila", sourceFileUri);
 
                         dos = new DataOutputStream(conn.getOutputStream());
 
                         dos.writeBytes(twoHyphens + boundary + lineEnd);
-                        dos.writeBytes("Content-Disposition: form-data; name=\"lafamila\";filename=\""
-                                + sourceFileUri + "\"" + lineEnd);
+                        dos.writeBytes("Content-Disposition: form-data; name=\"lafamila\"" + lineEnd);
+                        dos.writeBytes("Content-Type: image/pjpeg " + lineEnd);
 
                         dos.writeBytes(lineEnd);
+
+
 
                         bytesAvailable = fileInputStream.available();
 
@@ -284,6 +289,17 @@ public class UnalysisFragment extends Fragment {
                         dos.writeBytes(lineEnd);
                         dos.writeBytes(twoHyphens + boundary + twoHyphens
                                 + lineEnd);
+                        dos.flush();
+                        dos.close();
+
+
+//                        OutputStream os = conn.getOutputStream();
+//                        BufferedWriter writer = new BufferedWriter(
+//                                new OutputStreamWriter(os, "UTF-8"));
+//                        writer.write(getPostDataString(post));
+//                        writer.flush();
+//                        writer.close();
+//                        os.close();
 
                         // Responses from the server (code and message)
                         int serverResponseCode = conn.getResponseCode();
@@ -291,8 +307,6 @@ public class UnalysisFragment extends Fragment {
                                 .getResponseMessage();
 
                         fileInputStream.close();
-                        dos.flush();
-                        dos.close();
                         return readStream(conn.getInputStream());
 
                     } catch (Exception e) {
@@ -300,7 +314,9 @@ public class UnalysisFragment extends Fragment {
                     }
 
                 }
-
+                else{
+                    Log.d("lafamilia", "empty");
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -311,19 +327,47 @@ public class UnalysisFragment extends Fragment {
         protected void onPostExecute(String result) {
             Log.d("lafamilia", sourceFileUri);
             Log.d("lafamilia", result);
-
+            if(result.length() > 0){
+                Toast.makeText(getContext(), "Done!", Toast.LENGTH_LONG).show();
+            }
+            else{
+                Toast.makeText(getContext(), "Internal Server Error, Try Again!", Toast.LENGTH_LONG).show();
+            }
 
         }
+
+        HashMap<String, String> post;
+
 
         @Override
         protected void onPreExecute() {
+
+            post = new HashMap<>();
+            post.put("pet", pet_id+"");
         }
+
 
         @Override
         protected void onProgressUpdate(Void... values) {
         }
     }
 
+    private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (first)
+                first = false;
+            else
+                result.append("&");
+
+            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+        }
+
+        return result.toString();
+    }
 
     private String readStream(InputStream in) {
         BufferedReader reader = null;
@@ -359,6 +403,7 @@ public class UnalysisFragment extends Fragment {
             result = cursor.getString(idx);
             cursor.close();
         }
+        Log.d("lafailia", result);
         return result;
     }
 }

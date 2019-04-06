@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:scaleType="centerInside"
             android:adjustViewBounds="true"
-            android:src="@drawable/left1"/>
+            android:src="@mipmap/ic_launcher"/>
 
 
         <LinearLayout
